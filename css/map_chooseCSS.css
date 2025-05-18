@@ -1,0 +1,66 @@
+.rectangle {
+  counter-reset: li;
+  list-style: none;
+  /* font: 14px "Trebuchet MS", "Lucida Sans"; */
+  font-family: "Roboto", sans-serif;
+  border-radius: 5px;
+  padding: 0;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+.rectangle a {
+  position: relative;
+  display: block;
+  padding: 0.4em 0.4em 0.4em 0.8em;
+  margin: 0.5em 0 0.5em 2.5em;
+  background: #247fff;
+  color: #fff !important;
+  border-radius: 5px;
+  text-decoration: none;
+  transition: all 0.3s ease-out;
+}
+.rectangle a:hover {
+  background: #0a55bf;
+}
+.rectangle a:before {
+  content: counter(li);
+  counter-increment: li;
+  position: absolute;
+  left: -2.5em;
+  top: 50%;
+  margin-top: -1em;
+  background: #0a55bf;
+  border-radius: 5px;
+  height: 2em;
+  width: 2em;
+  line-height: 2em;
+  text-align: center;
+  font-weight: bold;
+}
+.rectangle a:after {
+  position: absolute;
+  content: "";
+  border: 0.5em solid transparent;
+  left: -1em;
+  top: 50%;
+  margin-top: -0.5em;
+  transition: all 0.3s ease-out;
+}
+.rectangle a:hover:after {
+  left: -0.5em;
+  border-left-color: #0a55bf;
+}
+
+.h1news {
+  /* margin-bottom: 1.5em; */
+  text-align: left;
+  padding: 1em;
+}
+
+.forInfStation {
+  font-weight: 500;
+  font-size: 14px;
+  color: #405d87;
+  /* padding-top: 2px; */
+  text-decoration: none;
+  /* padding-bottom: 15px; */
+}

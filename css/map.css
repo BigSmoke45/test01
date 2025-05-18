@@ -1,0 +1,43 @@
+#map {
+  height: 66vh;
+  width: 66vw;
+  z-index: 1;
+  margin: auto;
+}
+
+.card2 {
+  text-align: left;
+  border-color: #222629 !important;
+  background-color: #222629 !important;
+  text-decoration: none;
+  color: black;
+  font-size: larger;
+}
+
+.onMapChoose {
+  /* font-weight: 500; */
+  /* font-size: 14px; */
+  padding-top: 15px;
+  text-decoration: none;
+  padding-bottom: 15px;
+}
+
+h2 {
+  color: #fff;
+}
+
+.onFirstPage {
+  color: #92d36e !important;
+}
+
+.onFirstPage:hover {
+  color: #72bb53 !important;
+}
+
+.onMapChoose2 {
+  /* font-weight: 500; */
+  /* font-size: 14px; */
+  padding-top: 15px;
+  text-decoration: none;
+  color: white;
+}
