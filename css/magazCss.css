@@ -172,6 +172,23 @@ h3 {
   transform: translateY(-3px);
 }
 
+.checkout-btn-ton {
+  padding: 15px 30px;
+  font-size: 1.2em;
+  background: linear-gradient(135deg, #00c2ff, #1b6eff);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+}
+
+.checkout-btn-ton:hover {
+  background: linear-gradient(135deg, #1b6eff, #00c2ff);
+  transform: translateY(-3px);
+}
+
 /* Всплывающее уведомление */
 #notification {
   position: fixed;
@@ -255,4 +272,36 @@ h3 {
 .cart-item .item-price {
   color: #72bb53;
   font-weight: bold;
+}
+
+.toast-message {
+  min-width: 250px;
+  background-color: #198754;
+  color: #fff;
+  padding: 16px 20px;
+  margin-top: 10px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  animation: slideIn 0.5s ease, fadeOut 0.5s ease 3.5s forwards;
+}
+.toast-message.error {
+  background-color: #dc3545;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
 }

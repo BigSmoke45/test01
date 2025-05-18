@@ -13,9 +13,11 @@ function showCategory(categoryId) {
   event.target.classList.add("active");
 }
 
+// Глобальная переменная корзины
+let cart = [];
+
 document.addEventListener("DOMContentLoaded", () => {
   const cartItemsContainer = document.getElementById("cart-items");
-  let cart = []; // Массив для хранения товаров в корзине
 
   // Функция добавления товара в корзину
   function addToCart(id, name, price) {
@@ -35,36 +37,69 @@ document.addEventListener("DOMContentLoaded", () => {
     cartItemsContainer.innerHTML = "";
 
     if (cart.length === 0) {
-      cartItemsContainer.innerHTML = "<p>Ваша корзина порожня.</p>";
+      cartItemsContainer.innerHTML = `
+      <p class="text-center text-muted py-4">Ваш кошик порожній.</p>
+    `;
+
+      // Очистка отображения общей суммы и количества товаров
+      const cartSummary = document.getElementById("cart-summary");
+      cartSummary.innerHTML = "";
       return;
     }
 
     cart.forEach((item, index) => {
       const cartItem = document.createElement("div");
-      cartItem.classList.add("cart-item");
+      cartItem.className =
+        "cart-item d-flex justify-content-between align-items-center border rounded p-3 mb-3";
 
       cartItem.innerHTML = `
-        <span class="item-name">${item.name}</span>
-        <span class="item-price">₴${(item.price * item.quantity).toFixed(
+      <div>
+        <h5 class="mb-1">${item.name}</h5>
+        <small class="text-muted">Ціна за одиницю: ₴${item.price.toFixed(
           2
-        )}</span>
-        <div>
+        )}</small>
+      </div>
+
+      <div class="d-flex align-items-center">
+        <span class="fw-bold text-success me-3 item-total-price">₴${(
+          item.price * item.quantity
+        ).toFixed(2)}</span>
+
+        <div class="d-flex align-items-center me-3">
           <input
             type="number"
-            class="item-quantity"
+            class="form-control form-control-sm text-center item-quantity"
+            style="width: 60px;"
             min="1"
             value="${item.quantity}"
             data-index="${index}"
           />
-          <button class="remove-item" data-index="${index}">Видалити</button>
         </div>
-      `;
+
+        <button class="btn btn-sm btn-outline-danger rounded-pill remove-item" data-index="${index}">
+          Видалити
+        </button>
+      </div>
+    `;
 
       cartItemsContainer.appendChild(cartItem);
     });
 
-    // Обновляем события для изменения количества и удаления
-    attachCartEvents();
+    attachCartEvents(); // важно вызвать снова после отрисовки
+
+    // Обновим отображение общей суммы и количества товаров
+    const totalQuantity = cart.reduce((sum, item) => sum + item.quantity, 0);
+    const totalPrice = cart.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
+
+    const cartSummary = document.getElementById("cart-summary");
+    cartSummary.innerHTML = `
+  <hr />
+  <p><strong>Усього товарів:</strong> ${totalQuantity}</p>
+  <p><strong>Загальна сума:</strong> ₴${totalPrice.toFixed(2)}</p>
+`;
   }
 
   // Функция для привязки событий к элементам корзины
@@ -73,13 +108,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const removeButtons = document.querySelectorAll(".remove-item");
 
     quantityInputs.forEach((input) => {
-      input.addEventListener("change", (e) => {
+      input.addEventListener("input", (e) => {
         const index = e.target.dataset.index;
         const newQuantity = parseInt(e.target.value);
 
         if (newQuantity > 0) {
           cart[index].quantity = newQuantity;
-          renderCart();
+
+          // Обновляем только цену, не перерисовывая всю корзину
+          const parent = e.target.closest(".cart-item");
+          const totalPriceElem = parent.querySelector(".item-total-price");
+          totalPriceElem.textContent = `₴${(
+            cart[index].price * newQuantity
+          ).toFixed(2)}`;
         }
       });
     });
@@ -88,7 +129,7 @@ document.addEventListener("DOMContentLoaded", () => {
       button.addEventListener("click", (e) => {
         const index = e.target.dataset.index;
         cart.splice(index, 1);
-        renderCart();
+        renderCart(); // при удалении — перерисовка всей корзины
       });
     });
   }
@@ -96,13 +137,16 @@ document.addEventListener("DOMContentLoaded", () => {
   // Открытие корзины (кнопка "Оформити замовлення")
   window.openCheckout = function () {
     if (cart.length === 0) {
-      alert("Корзина порожня! Додайте товари, щоб оформити замовлення.");
+      showToast(
+        "Кошик порожн! Додайте товари, щоб оформити замовлення.",
+        "error"
+      );
       return;
     }
 
     console.log("Ваше замовлення:", cart);
-    alert("Ваше замовлення відправлено. Дякуємо за покупку!");
-    cart = []; // Очищаем корзину
+    showToast("✅ Замовлення відправлено! Дякуємо за покупку!");
+    cart = [];
     renderCart();
   };
 
@@ -116,3 +160,39 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 });
+
+// Переместите эту функцию за пределы DOMContentLoaded
+function openTonCheckout() {
+  if (cart.length === 0) {
+    showToast(
+      "Кошик порожній! Додайте товари, щоб оформити замовлення.",
+      "error"
+    );
+    return;
+  }
+  // Вычисляем общую сумму и количество товаров
+  const totalQuantity = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const totalPrice = cart.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
+  // Сохраняем значения в sessionStorage
+  sessionStorage.setItem("totalQuantity", totalQuantity);
+  sessionStorage.setItem("totalPrice", totalPrice.toFixed(2));
+  // Открываем страницу оплаты
+  window.open("ton-checkout.html", "_blank");
+}
+
+function showToast(message, type = "success") {
+  const toastContainer = document.getElementById("toast-container");
+
+  const toast = document.createElement("div");
+  toast.className = `toast-message ${type}`;
+  toast.textContent = message;
+
+  toastContainer.appendChild(toast);
+
+  setTimeout(() => {
+    toast.remove();
+  }, 4000);
+}
