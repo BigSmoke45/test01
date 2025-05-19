@@ -30,9 +30,9 @@ window.addEventListener('DOMContentLoaded', () => {
   const bsModal = new bootstrap.Modal(modalEl);
 
   // Валидация логина
-  function isValidName(username) {
-    return /^[a-zA-Z0-9]+$/.test(username);
-  }
+ // function isValidName(username) {
+//    return /^[a-zA-Z0-9]+$/.test(username);
+//  }
 
   // Показываем сообщение в модальном окне
   function showAlert(message) {
@@ -50,7 +50,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const pass2 = password2Field.value;
 
     if (!name || !email || !pass || !pass2) return showAlert('Усі поля обов\'язкові.');
-    if (!isValidName(name)) return showAlert('Логін лише A-Z, a-z, 0-9.');
+   // if (!isValidName(name)) return showAlert('Логін лише A-Z, a-z, 0-9.');
     if (pass !== pass2 || pass.length < 6) return showAlert('Паролі не співпадають або менше 6 символів.');
 
     try {
