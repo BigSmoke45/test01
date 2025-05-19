@@ -2,7 +2,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.12.1/firebas
 import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.12.1/firebase-auth.js";
 import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.12.1/firebase-database.js";
 
-// Firebase configuration
+// Инициализация Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyDQ9oYExUZ580AJ_HUbnZ0C6qot24F3yE4",
   authDomain: "firstproj-536ff.firebaseapp.com",
@@ -10,69 +10,72 @@ const firebaseConfig = {
   projectId: "firstproj-536ff",
   storageBucket: "firstproj-536ff.appspot.com",
   messagingSenderId: "812751731917",
-  appId: "1:812751731917:web:2e215c1562146bed7c7d84",
+  appId: "1:812751731917:web:2e215c156214bed7c7d84",
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
 
-// DOM elements
-const nameField = document.querySelector('#name');
-const emailField = document.querySelector('#email');
-const passwordField = document.querySelector('#password');
-const password2Field = document.querySelector('#password2');
-const registerButton = document.querySelector('#registerBut');
-const alertText = document.getElementById('alertText');
+// Ждём, пока DOM загрузится
+window.addEventListener('DOMContentLoaded', () => {
+  // DOM-элементы
+  const nameField = document.querySelector('#name');
+  const emailField = document.querySelector('#email');
+  const passwordField = document.querySelector('#password');
+  const password2Field = document.querySelector('#password2');
+  const registerBtn = document.querySelector('#registerBut');
+  const alertText = document.getElementById('alertText');
+  const modalEl = document.getElementById('staticBackdrop');
+  const bsModal = new bootstrap.Modal(modalEl);
 
-// Validate username (A-Z, a-z, 0-9)
-function isValidName(username) {
-  return /^[a-zA-Z0-9]+$/.test(username);
-}
-
-// Show message in modal
-function showAlert(message) {
-  if (alertText) alertText.innerText = message;
-}
-
-// Registration handler
-registerButton.addEventListener('click', async () => {
-  const name = nameField.value.trim();
-  const email = emailField.value.trim();
-  const pass = passwordField.value;
-  const pass2 = password2Field.value;
-
-  // Client-side validation
-  if (!name || !email || !pass || !pass2) {
-    return showAlert('Усі пыфоля обов'язкові.');
-  }
-  if (!isValidName(name)) {
-    return showAlert('Лоыфгін має містити лише A-Z, a-z, 0-9.');
-  }
-  if (pass !== pass2 || pass.length < 6) {
-    return showAlert('Паролі не співпадають або містять менше 6 символів.');
+  // Валидация логина
+  function isValidName(username) {
+    return /^[a-zA-Z0-9]+$/.test(username);
   }
 
-  try {
-    // Create user with Firebase Auth
-    const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
-    const user = userCredential.user;
-
-    // Save additional profile data
-    await set(ref(db, `Користувачі АЗС/${name}`), {
-      UID: user.uid,
-      Login: name,
-      Email: email,
-      BuyA95: 0,
-      BuyA92: 0,
-      BuyDiesel: 0,
-      BuyGas: 0,
-      Discont: 0
-    });
-
-    showAlert('Користувач успішно зареєстрований!');
-  } catch (error) {
-    showAlert(error.message);
+  // Показываем сообщение в модальном окне
+  function showAlert(message) {
+    alertText.innerText = message;
+    bsModal.show();
   }
+
+  // Обработчик регистрации
+  registerBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
+
+    const name = nameField.value.trim();
+    const email = emailField.value.trim();
+    const pass = passwordField.value;
+    const pass2 = password2Field.value;
+
+    if (!name || !email || !pass || !pass2) return showAlert('Усі поля обов\'язкові.');
+    if (!isValidName(name)) return showAlert('Логін лише A-Z, a-z, 0-9.');
+    if (pass !== pass2 || pass.length < 6) return showAlert('Паролі не співпадають або менше 6 символів.');
+
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+      const user = userCredential.user;
+
+      // Данные профиля
+      await set(ref(db, `Користувачі АЗС/${name}`), {
+        UID: user.uid,
+        Login: name,
+        Email: email,
+        BuyA95: 0,
+        BuyA92: 0,
+        BuyDiesel: 0,
+        BuyGas: 0,
+        Discont: 0
+      });
+
+      showAlert('Користувач успішно зареєстрований!');
+      // очищаем поля
+      nameField.value = emailField.value = passwordField.value = password2Field.value = '';
+    } catch (error) {
+      console.error(error);
+      showAlert(error.message);
+    }
+  });
 });
+
