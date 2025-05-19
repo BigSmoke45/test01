@@ -66,13 +66,10 @@
               <a class="nav-link" href="news.html">Новини та акції</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="map.html">Мапа</a>
+              <a class="nav-link" href="map_choose.html">Мапа</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="about_company.html">Про компанію</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="market.html">Магазин</a>
             </li>
             </ul>
           </div>
@@ -82,18 +79,21 @@
         <div class="circle"></div>
         <div class="register-form">
         <h1 class="form-title">Реєстрація</h1>
-        <div class="onSecondtPage"><a href="registration_old.html" class="onSecondtPage">&#8592 Повернутися до старої версії реєстрації</a></div>
         <div class="form-fields">
-          
-          <div class="form-fields">
-            <button id="googleLogin" class="google-button">Аутентифікація імені та пошти через Google</button>
-        </div>
+            <div class="form-fields">
+                <input type="text" placeholder="Логін (A-z A-Z 0-9)" id="name">
+            </div>
 
             <div class="form-fields">
-                <input type="text" placeholder="Пароль (мінімум 6 символів)" id="password">
+                <input type="text" placeholder="Пошта" id="email">
             </div>
+
             <div class="form-fields">
-                <input type="text" placeholder="Повторіть пароль" id="password2">
+                <input type="password" placeholder="Пароль (мінімум 6 символів)" id="password">
+            </div>
+
+            <div class="form-fields">
+                <input type="password" placeholder="Повторіть пароль" id="password2">
             </div>
         </div>
  
@@ -104,6 +104,7 @@
             <div class="onFirstPage"><a href="index.html" class="onFirstPage">&#8592 Повернутися на головну</a></div>
         </div>
     </div>
+<!-- Modal -->
 <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -112,7 +113,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <p id="alertText" class="newPforModal">Успішно</p>
+        <p id="alertText" class="newPforModal"></p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Ок</button>
