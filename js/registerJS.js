@@ -12,52 +12,57 @@ const firebaseConfig = {
   messagingSenderId: "812751731917",
   appId: "1:812751731917:web:2e215c156214bed7c7d84",
 };
+
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
 
+// Ждём, пока DOM загрузится
 window.addEventListener('DOMContentLoaded', () => {
-  const nameField     = document.querySelector('#name');
-  const emailField    = document.querySelector('#email');
+  // DOM-элементы
+  const nameField = document.querySelector('#name');
+  const emailField = document.querySelector('#email');
   const passwordField = document.querySelector('#password');
-  const password2Field= document.querySelector('#password2');
-  const registerBtn   = document.querySelector('#registerBut');
-  const alertText     = document.getElementById('alertText');
-  const modalEl       = document.getElementById('staticBackdrop');
-  const bsModal       = new bootstrap.Modal(modalEl);
+  const password2Field = document.querySelector('#password2');
+  const registerBtn = document.querySelector('#registerBut');
+  const alertText = document.getElementById('alertText');
+  const modalEl = document.getElementById('staticBackdrop');
+  const bsModal = new bootstrap.Modal(modalEl);
 
- // function isValidName(u) {
- //   return /^[a-zA-Z0-9]+$/.test(u);
+  // Валидация логина
+ // function isValidName(username) {
+//    return /^[a-zA-Z0-9]+$/.test(username);
 //  }
 
-  function showAlert(msg) {
-    alertText.innerText = msg;
+  // Показываем сообщение в модальном окне
+  function showAlert(message) {
+    alertText.innerText = message;
     bsModal.show();
   }
 
-  registerBtn.addEventListener('click', async e => {
+  // Обработчик регистрации
+  registerBtn.addEventListener('click', async (e) => {
     e.preventDefault();
-    const name  = nameField.value.trim();
-    const email = emailField.value.trim();
-    const p1    = passwordField.value;
-    const p2    = password2Field.value;
 
-    if (!name || !email || !p1 || !p2)
-      return showAlert('Усі поля обов\'язкові.');
-  //  if (!isValidName(name))
-   //   return showAlert('Логін лише A-Z, a-z, 0-9.');
-    if (p1 !== p2 || p1.length < 6)
-      return showAlert('Паролі не співпадають або менше 6 символів.');
+    const name = nameField.value.trim();
+    const email = emailField.value.trim();
+    const pass = passwordField.value;
+    const pass2 = password2Field.value;
+
+    if (!name || !email || !pass || !pass2) return showAlert('Усі поля обов\'язкові.');
+   // if (!isValidName(name)) return showAlert('Логін лише A-Z, a-z, 0-9.');
+    if (pass !== pass2 || pass.length < 6) return showAlert('Паролі не співпадають або менше 6 символів.');
 
     try {
-      const uc = await createUserWithEmailAndPassword(auth, email, p1);
-      const uid = uc.user.uid;
+      const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+      const user = userCredential.user;
 
+      // Данные профиля
       await set(ref(db, `Користувачі АЗС/${name}`), {
-        UID: uid,
+        UID: user.uid,
         Login: name,
         Email: email,
-        OrderDate: 0,
+        BuyA95: 0,
         BuyA92: 0,
         BuyDiesel: 0,
         BuyGas: 0,
@@ -65,14 +70,12 @@ window.addEventListener('DOMContentLoaded', () => {
       });
 
       showAlert('Користувач успішно зареєстрований!');
+      // очищаем поля
       nameField.value = emailField.value = passwordField.value = password2Field.value = '';
-    } catch (err) {
-      console.error(err);
-      showAlert(err.message);
+    } catch (error) {
+      console.error(error);
+      showAlert(error.message);
     }
-  });
-});
-
   });
 });
 
