@@ -87,7 +87,7 @@ window.addEventListener('DOMContentLoaded', () => {
     if (loginSuccess) {
       window.open('personal_cabinet.html', '_self');
     } else {
-      showAlert('Спочатку виконайте вхід');
+    //  showAlert('Спочатку виконайте вхід');
     }
   });
 });
