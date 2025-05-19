@@ -67,7 +67,21 @@ window.addEventListener('DOMContentLoaded', () => {
         BuyDiesel: 0,
         BuyGas: 0,
         Discont: 0,
-         Orders:   {}      // <-- пустой узел заказов
+       //  Orders:   {}      // <-- пустой узел заказов
+        Orders: {
+  "orderId1": {
+    product: "A95",
+    quantity: 10,
+    price: 494.0,
+    timestamp: "2025-05-19T12:30:00Z"
+  },
+  "orderId2": {
+    product: "Gas",
+    quantity: 5,
+    price: 142.0,
+    timestamp: "2025-05-19T13:45:00Z"
+  }
+}
       });
 
       showAlert('Користувач успішно зареєстрований!');
