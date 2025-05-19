@@ -1,5 +1,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.12.1/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.12.1/firebase-auth.js";
+import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.12.1/firebase-database.js";
 
+// Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyDQ9oYExUZ580AJ_HUbnZ0C6qot24F3yE4",
   authDomain: "firstproj-536ff.firebaseapp.com",
@@ -10,80 +13,66 @@ const firebaseConfig = {
   appId: "1:812751731917:web:2e215c1562146bed7c7d84",
 };
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
 
-import {
-  getDatabase,
-  ref,
-  get,
-  set,
-  child,
-  update,
-  remove,
-} from "https://www.gstatic.com/firebasejs/9.12.1/firebase-database.js";
+// DOM elements
+const nameField = document.querySelector('#name');
+const emailField = document.querySelector('#email');
+const passwordField = document.querySelector('#password');
+const password2Field = document.querySelector('#password2');
+const registerButton = document.querySelector('#registerBut');
+const alertText = document.getElementById('alertText');
 
-const db = getDatabase();
-var name = document.querySelector("#name");
-var email = document.querySelector("#email");
-var password = document.querySelector("#password");
-var password2 = document.querySelector("#password2");
-var registerButton = document.querySelector("#registerBut");
-
-function InsertData() {
-  var alTxt;
-  const dbref = ref(db);
-  get(child(dbref, "Користувачі АЗС/" + name.value))
-    .then((snapshot) => {
-      if (snapshot.exists() && name.value == snapshot.val().Login) {
-        alTxt = "Ой, такий логін вже зареєстровано, будь ласка оберіть інший!";
-        document.getElementById("alertText").innerHTML = alTxt;
-      } else {
-        if (
-          password.value == password2.value &&
-          password.value != null &&
-          password.value.length >= 6
-        ) {
-          if (name.value != null && name.value != "") {
-            if (email.value != null && email.value != "") {
-              if (isValidname(name.value)) {
-                set(ref(db, "Користувачі АЗС/" + name.value), {
-                  Login: name.value,
-                  Email: email.value,
-                  Password: password.value,
-                  BuyA95: 0,
-                  BuyA92: 0,
-                  BuyDiesel: 0,
-                  BuyGas: 0,
-                  Discont: 0,
-                });
-                alTxt = "Користувач успішно зареєстрований";
-                document.getElementById("alertText").innerHTML = alTxt;
-              } else {
-                alTxt =
-                  'Ой, ви маєте правильно заповнити поле "Логін" (лише символи A-z A-Z та 0-9)';
-                document.getElementById("alertText").innerHTML = alTxt;
-              }
-            } else {
-              alTxt = 'Ой, ви маєте заповнити поле "Пошта"';
-              document.getElementById("alertText").innerHTML = alTxt;
-            }
-          } else {
-            alTxt = "Ой, ви маєте заповнити поле Логін";
-            document.getElementById("alertText").innerHTML = alTxt;
-          }
-        } else {
-          alTxt = "Ой, пароль не співпадає або містить меньше 6 символів!";
-          document.getElementById("alertText").innerHTML = alTxt;
-        }
-      }
-    })
-    .catch((error) => {
-      alert(error);
-    });
-}
-
-function isValidname(username) {
+// Validate username (A-Z, a-z, 0-9)
+function isValidName(username) {
   return /^[a-zA-Z0-9]+$/.test(username);
 }
 
-registerButton.addEventListener("click", InsertData);
+// Show message in modal
+function showAlert(message) {
+  if (alertText) alertText.innerText = message;
+}
+
+// Registration handler
+registerButton.addEventListener('click', async () => {
+  const name = nameField.value.trim();
+  const email = emailField.value.trim();
+  const pass = passwordField.value;
+  const pass2 = password2Field.value;
+
+  // Client-side validation
+  if (!name || !email || !pass || !pass2) {
+    return showAlert('Усі пыфоля обов'язкові.');
+  }
+  if (!isValidName(name)) {
+    return showAlert('Лоыфгін має містити лише A-Z, a-z, 0-9.');
+  }
+  if (pass !== pass2 || pass.length < 6) {
+    return showAlert('Паролі не співпадають або містять менше 6 символів.');
+  }
+
+  try {
+    // Create user with Firebase Auth
+    const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+    const user = userCredential.user;
+
+    // Save additional profile data
+    await set(ref(db, `Користувачі АЗС/${name}`), {
+      UID: user.uid,
+      Login: name,
+      Email: email,
+      BuyA95: 0,
+      BuyA92: 0,
+      BuyDiesel: 0,
+      BuyGas: 0,
+      Discont: 0
+    });
+
+    showAlert('Користувач успішно зареєстрований!');
+  } catch (error) {
+    showAlert(error.message);
+  }
+});
