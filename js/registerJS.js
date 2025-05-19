@@ -26,9 +26,9 @@ window.addEventListener('DOMContentLoaded', () => {
   const modalEl       = document.getElementById('staticBackdrop');
   const bsModal       = new bootstrap.Modal(modalEl);
 
-  function isValidName(u) {
-    return /^[a-zA-Z0-9]+$/.test(u);
-  }
+ // function isValidName(u) {
+ //   return /^[a-zA-Z0-9]+$/.test(u);
+//  }
 
   function showAlert(msg) {
     alertText.innerText = msg;
@@ -44,8 +44,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
     if (!name || !email || !p1 || !p2)
       return showAlert('Усі поля обов\'язкові.');
-    if (!isValidName(name))
-      return showAlert('Логін лише A-Z, a-z, 0-9.');
+  //  if (!isValidName(name))
+   //   return showAlert('Логін лише A-Z, a-z, 0-9.');
     if (p1 !== p2 || p1.length < 6)
       return showAlert('Паролі не співпадають або менше 6 символів.');
 
@@ -57,7 +57,7 @@ window.addEventListener('DOMContentLoaded', () => {
         UID: uid,
         Login: name,
         Email: email,
-        BuyA95: 0,
+        OrderDate: 0,
         BuyA92: 0,
         BuyDiesel: 0,
         BuyGas: 0,
