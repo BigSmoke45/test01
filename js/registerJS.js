@@ -1,16 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.12.1/firebase-app.js";
-import {
-  getAuth,
-  GoogleAuthProvider,
-  signInWithPopup,
-} from "https://www.gstatic.com/firebasejs/9.12.1/firebase-auth.js";
-import {
-  getDatabase,
-  ref,
-  set,
-} from "https://www.gstatic.com/firebasejs/9.12.1/firebase-database.js";
 
-// Инициализация Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyDQ9oYExUZ580AJ_HUbnZ0C6qot24F3yE4",
   authDomain: "firstproj-536ff.firebaseapp.com",
@@ -22,48 +11,79 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const auth = getAuth();
-const provider = new GoogleAuthProvider();
+
+import {
+  getDatabase,
+  ref,
+  get,
+  set,
+  child,
+  update,
+  remove,
+} from "https://www.gstatic.com/firebasejs/9.12.1/firebase-database.js";
+
+const db = getDatabase();
+var name = document.querySelector("#name");
+var email = document.querySelector("#email");
 var password = document.querySelector("#password");
-// Получаем ссылку на кнопку входа через Google
-var googleLoginButton = document.querySelector("#googleLogin");
+var password2 = document.querySelector("#password2");
+var registerButton = document.querySelector("#registerBut");
 
-googleLoginButton.addEventListener("click", () => {
-  // Входим через Google
-  signInWithPopup(auth, provider)
-    .then((result) => {
-      // Получаем информацию о пользователе
-      const user = result.user;
-      console.log(user);
-
-      // Записываем данные в Firebase Database
-      const db = getDatabase();
-      const userRef = ref(db, "Користувачі АЗС/" + user.displayName);
-
-      set(userRef, {
-        Login: user.displayName,
-        Email: user.email,
-        Password: password.value,
-        DataBuy1: 0,
-        TypeGas1: 0,
-        liters1: 0,
-        Sum1: 0,
-        BonusInTable1: 0,
-        Bonus1: 0,
-        Bonus2: 0,
-        Discont: 0,
-      })
-        .then(() => {
-          console.log("Данные пользователя записаны в базу данных");
-        })
-        .catch((error) => {
-          console.error("Ошибка записи данных:", error);
-        });
+function InsertData() {
+  var alTxt;
+  const dbref = ref(db);
+  get(child(dbref, "Користувачі АЗС/" + name.value))
+    .then((snapshot) => {
+      if (snapshot.exists() && name.value == snapshot.val().Login) {
+        alTxt = "Ой, такий логін вже зареєстровано, будь ласка оберіть інший!";
+        document.getElementById("alertText").innerHTML = alTxt;
+      } else {
+        if (
+          password.value == password2.value &&
+          password.value != null &&
+          password.value.length >= 6
+        ) {
+          if (name.value != null && name.value != "") {
+            if (email.value != null && email.value != "") {
+              if (isValidname(name.value)) {
+                set(ref(db, "Користувачі АЗС/" + name.value), {
+                  Login: name.value,
+                  Email: email.value,
+                  Password: password.value,
+                  BuyA95: 0,
+                  BuyA92: 0,
+                  BuyDiesel: 0,
+                  BuyGas: 0,
+                  Discont: 0,
+                });
+                alTxt = "Користувач успішно зареєстрований";
+                document.getElementById("alertText").innerHTML = alTxt;
+              } else {
+                alTxt =
+                  'Ой, ви маєте правильно заповнити поле "Логін" (лише символи A-z A-Z та 0-9)';
+                document.getElementById("alertText").innerHTML = alTxt;
+              }
+            } else {
+              alTxt = 'Ой, ви маєте заповнити поле "Пошта"';
+              document.getElementById("alertText").innerHTML = alTxt;
+            }
+          } else {
+            alTxt = "Ой, ви маєте заповнити поле Логін";
+            document.getElementById("alertText").innerHTML = alTxt;
+          }
+        } else {
+          alTxt = "Ой, пароль не співпадає або містить меньше 6 символів!";
+          document.getElementById("alertText").innerHTML = alTxt;
+        }
+      }
     })
     .catch((error) => {
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      console.error("Ошибка аутентификации:", errorCode, errorMessage);
-      alert("Ошибка входа: " + errorMessage);
+      alert(error);
     });
-});
+}
+
+function isValidname(username) {
+  return /^[a-zA-Z0-9]+$/.test(username);
+}
+
+registerButton.addEventListener("click", InsertData);
