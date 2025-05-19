@@ -36,20 +36,38 @@ window.addEventListener('DOMContentLoaded', () => {
   // Обработчик входа
   findBtn.addEventListener('click', async (e) => {
     e.preventDefault();
-    const name = nameField.value.trim();
+    const input = nameField.value.trim();
     const pass = passwordField.value;
 
-    if (!name || !pass) return showAlert('Вкажіть логін та пароль.');
+    if (!input || !pass) return showAlert('Вкажіть логін (або email) та пароль.');
 
     try {
-      // Получаем данные пользователя
-      const snapshot = await get(child(ref(db), `Користувачі АЗС/${name}`));
-      if (!snapshot.exists()) return showAlert('Користувача не знайдено');
-      const userData = snapshot.val();
-      const email = userData.Email;
-
-      // Входим с email и паролем
-      await signInWithEmailAndPassword(auth, email, pass);
+      let email, userData;
+      // Если введён email
+      if (input.includes('@')) {
+        email = input;
+        // Попытаться войти
+        await signInWithEmailAndPassword(auth, email, pass);
+        // Получить все профили и найти по Email
+        const snapshotAll = await get(ref(db, 'Користувачі АЗС'));
+        if (snapshotAll.exists()) {
+          snapshotAll.forEach(childSnap => {
+            const val = childSnap.val();
+            if (val.Email === email) {
+              userData = val;
+            }
+          });
+        }
+        if (!userData) return showAlert('Профіль для цього email не знайдено');
+      } else {
+        // Если введён логин
+        const snapshot = await get(child(ref(db), `Користувачі АЗС/${input}`));
+        if (!snapshot.exists()) return showAlert('Користувача не знайдено');
+        userData = snapshot.val();
+        email = userData.Email;
+        // Входим с email и паролем
+        await signInWithEmailAndPassword(auth, email, pass);
+      }
 
       // Сохраняем данные в sessionStorage
       Object.keys(userData).forEach(key => {
