@@ -66,7 +66,8 @@ window.addEventListener('DOMContentLoaded', () => {
         BuyA92: 0,
         BuyDiesel: 0,
         BuyGas: 0,
-        Discont: 0
+        Discont: 0,
+         Orders:   {}      // <-- пустой узел заказов
       });
 
       showAlert('Користувач успішно зареєстрований!');
