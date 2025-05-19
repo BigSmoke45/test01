@@ -1,5 +1,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.12.1/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.12.1/firebase-auth.js";
+import { getDatabase, ref, child, get } from "https://www.gstatic.com/firebasejs/9.12.1/firebase-database.js";
 
+// Инициализация Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyDQ9oYExUZ580AJ_HUbnZ0C6qot24F3yE4",
   authDomain: "firstproj-536ff.firebaseapp.com",
@@ -7,69 +10,66 @@ const firebaseConfig = {
   projectId: "firstproj-536ff",
   storageBucket: "firstproj-536ff.appspot.com",
   messagingSenderId: "812751731917",
-  appId: "1:812751731917:web:2e215c1562146bed7c7d84",
+  appId: "1:812751731917:web:2e215c156214bed7c7d84",
 };
 
 const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
 
-import {
-  getDatabase,
-  ref,
-  get,
-  set,
-  child,
-  update,
-  remove,
-} from "https://www.gstatic.com/firebasejs/9.12.1/firebase-database.js";
+window.addEventListener('DOMContentLoaded', () => {
+  // DOM элементы
+  const nameField = document.querySelector('#name');
+  const passwordField = document.querySelector('#password');
+  const findBtn = document.querySelector('#find');
+  const okBtn = document.querySelector('#okbut');
+  const alertText = document.getElementById('alertText');
+  const modalEl = document.getElementById('staticBackdrop');
+  const bsModal = new bootstrap.Modal(modalEl);
+  let loginSuccess = false;
 
-const db = getDatabase();
-var name = document.querySelector("#name");
-var password = document.querySelector("#password");
-var bool1 = false;
-var findBtn = document.querySelector("#find");
-var okbut = document.querySelector("#okbut");
-
-function FindData() {
-  var alTxt;
-  const dbref = ref(db);
-
-  get(child(dbref, "Користувачі АЗС/" + name.value))
-    .then((snapshot) => {
-      if (
-        snapshot.exists() &&
-        name.value == snapshot.val().Login &&
-        name.value != null &&
-        name.value != "" &&
-        password.value == snapshot.val().Password &&
-        password.value != null &&
-        password.value != ""
-      ) {
-        sessionStorage.setItem("Login", snapshot.val().Login);
-        sessionStorage.setItem("Email", snapshot.val().Email);
-        sessionStorage.setItem("Password", snapshot.val().Password);
-        sessionStorage.setItem("BuyA95", snapshot.val().BuyA95);
-        sessionStorage.setItem("BuyA92", snapshot.val().BuyA92);
-        sessionStorage.setItem("BuyDiesel", snapshot.val().BuyDiesel);
-        sessionStorage.setItem("BuyGas", snapshot.val().BuyGas);
-        sessionStorage.setItem("Discont", snapshot.val().Discont);
-        sessionStorage.setItem("OrderSum", snapshot.val().OrderSum);
-        bool1 = true;
-        alTxt = "Вхід виконано.";
-        document.getElementById("alertText").innerHTML = alTxt;
-      } else {
-        alTxt = "Нічого не знайдено!";
-        document.getElementById("alertText").innerHTML = alTxt;
-      }
-    })
-    .catch((error) => {
-      alert(error);
-    });
-}
-
-function OkBut() {
-  if (bool1 == true) {
-    window.open("personal_cabinet.html", "_self");
+  function showAlert(message) {
+    alertText.innerText = message;
+    bsModal.show();
   }
-}
-findBtn.addEventListener("click", FindData);
-okbut.addEventListener("click", OkBut);
+
+  // Обработчик входа
+  findBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
+    const name = nameField.value.trim();
+    const pass = passwordField.value;
+
+    if (!name || !pass) return showAlert('Вкажіть логін та пароль.');
+
+    try {
+      // Получаем данные пользователя
+      const snapshot = await get(child(ref(db), `Користувачі АЗС/${name}`));
+      if (!snapshot.exists()) return showAlert('Користувача не знайдено');
+      const userData = snapshot.val();
+      const email = userData.Email;
+
+      // Входим с email и паролем
+      await signInWithEmailAndPassword(auth, email, pass);
+
+      // Сохраняем данные в sessionStorage
+      Object.keys(userData).forEach(key => {
+        sessionStorage.setItem(key, userData[key]);
+      });
+
+      showAlert('Вхід виконано успішно');
+      loginSuccess = true;
+    } catch (error) {
+      console.error(error);
+      showAlert('Помилка авторизації: ' + error.message);
+    }
+  });
+
+  // Перехід у кабінет
+  okBtn.addEventListener('click', () => {
+    if (loginSuccess) {
+      window.open('personal_cabinet.html', '_self');
+    } else {
+      showAlert('Спочатку виконайте вхід');
+    }
+  });
+});
